@@ -33,10 +33,16 @@ router.post("/login",async(req,res,next)=>{
         'living_xiaoyu',
         {
           expiresIn: 3600 * 24 * 7
-        }
+        },
+        
       )
-      
-      res.send(commonJS.outPut(200, token, 'success'))
+      const userInfo = {
+        id:result[0].id,
+        name:result[0].name,
+        age:result[0].age,
+        email:result[0].email
+      }
+      res.send({...commonJS.outPut(200, token, 'success'),user_id:result[0].id,})
     }else{
       res.send(commonJS.outPut(500, "账号/密码错误", 'fail'))
     }
@@ -74,6 +80,8 @@ router.get('/getUserInfo',async(req,res,next)=>{
  */
 router.post('/addUser', async (req, res, next)=>{
   let data = req.body;
+  console.log("获取的参数",req.body)
+
   if(!data.email||!data.password){
     res.send(commonJS.outPut(500, "邮箱/密码不能为空", 'fail'))
     return

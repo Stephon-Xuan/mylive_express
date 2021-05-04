@@ -38,13 +38,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(expressJwt({
-  secret:"living_xiaoyu",
-  algorithms:['HS256'],
-  credentialsRequired:true, //是否校验
-}).unless({
-  path:['/users/login','/livingRoom/roomList','/livingRoom/roomListByType']
-}))
+// app.use(expressJwt({
+//   secret:"living_xiaoyu",
+//   algorithms:['HS256'],
+//   credentialsRequired:true, //是否校验
+// }).unless({
+//   path:['/users/login','/livingRoom/roomList','/livingRoom/roomListByType']
+// }))
 
 //路由相关
 app.use('/', indexRouter);
