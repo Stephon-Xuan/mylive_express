@@ -5,7 +5,6 @@ var sqlHandle = require('../public/config/mysqlModal')
 
 /**
  * @description: 获取直播间信息
- * @Date: 2020-08-31 11:32:31
  * @author: stephon
  * @param {type} 
  * @return {type} 
@@ -28,7 +27,6 @@ router.get("/roomList",async (req,res,next)=>{
 
 /**
  * @description: 根据类型获取直播间信息
- * @Date: 2020-08-31 11:32:31
  * @author: stephon
  * @param {type} 
  * @return {type} 
@@ -52,7 +50,6 @@ router.get("/roomListByType",async (req,res,next)=>{
 
 /**
  * @description: 新建房间
- * @Date: 2020-08-31 11:38:49
  * @author: stephon
  * @param {type} 
  * @return {type} 
@@ -71,7 +68,6 @@ router.post("/addRoom",async (req,res,next)=>{
 
 /**
  * @description: 编辑房间
- * @Date: 2020-08-31 11:40:27
  * @author: stephon
  * @param {type} 
  * @return {type} 
@@ -89,7 +85,6 @@ router.post("/editRoom",async (req,res,next)=>{
 
 /**
  * @description: 获取直播间详情
- * @Date: 2020-09-10 22:04:29
  * @author: stephon
  * @param {type} 
  * @return {type} 
