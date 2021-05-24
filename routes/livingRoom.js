@@ -4,7 +4,7 @@ var commonJS = require("../public/js/common");
 var sqlHandle = require("../public/config/mysqlModal");
 
 /**
- * @description: 获取直播间信息
+ * @description: 获取直播间列表，且支持搜索
  * @author: stephon
  * @param {type}
  * @return {type}
@@ -26,7 +26,7 @@ router.get("/roomList", async (req, res, next) => {
 });
 
 /**
- * @description: 根据类型获取直播间信息
+ * @description: 根据类型获取直播间列表  跟上面的接口可以弄成一份,前端做一下用户过滤吧
  * @author: stephon
  * @param {type}
  * @return {type}
@@ -34,11 +34,31 @@ router.get("/roomList", async (req, res, next) => {
 router.get("/roomListByType", async (req, res, next) => {
   let data = req.query;
   let sql;
-  if (!data.type) {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.description from living_room left join user on living_room.user_id = user.id  where living_room.status != 0`;
+  if (data.type) {
+    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where type = '${data.type}' and living_room.status !=0 limit 20`;
+  } else if (data.channel_type && data.user_id) {
+    //用户类型与用户
+    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where channel_type = '${data.channel_type}' and living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
+  } else if (data.channel_type) {
+    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where channel_type = '${data.channel_type}' and living_room.status !=0 limit 20`;
+  } else if (data.user_id) {
+    //单纯是用户
+    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
   } else {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.description from living_room left join user on living_room.user_id = user.id where type = '${data.type}' and living_room.status !=0 limit 20`;
+    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id  where living_room.status != 0`;
   }
+  let result = await sqlHandle.DB2(sql);
+  if (result.length >= 0) {
+    res.send(commonJS.outPut(200, result, "success"));
+  } else {
+    res.send(commonJS.outPut(500, result, "fail"));
+  }
+});
+
+// 获取直播间类型
+router.get("/roomTypeList", async (req, res, next) => {
+  let data = req.query;
+  let sql = `select type.type_id , type.type_name from type`;
   let result = await sqlHandle.DB2(sql);
   if (result.length >= 0) {
     res.send(commonJS.outPut(200, result, "success"));
@@ -55,11 +75,11 @@ router.get("/roomListByType", async (req, res, next) => {
  */
 router.post("/addRoom", async (req, res, next) => {
   let data = req.body;
-  let sql = `insert into living_room (id,title,user_id,image,type,live_url,description) value ('${commonJS.getCode(
+  let sql = `insert into living_room (id,title,user_id,image,type,live_url,description,channel_type) value ('${commonJS.getCode(
     32
   )}','${data.title}','${data.user_id}','${data.image}','${data.type}','${
     data.live_url
-  }','${data.description}')`;
+  }','${data.description}','${data.channel_type}')`;
   let result = await sqlHandle.DB2(sql);
   if (result.affectedRows == 1) {
     res.send(commonJS.outPut(200, data, "success"));
@@ -111,7 +131,6 @@ router.get("/deleteRoom", async (req, res, next) => {
   let sql = `delete from living_room WHERE id = '${data.id}'`;
   console.log("id", data.id);
   let result = await sqlHandle.DB2(sql);
-  console.log("删除结果", result);
   if (result.affectedRows == 1) {
     let resultData = {};
     res.send(commonJS.outPut(200, resultData, "success"));

@@ -17,6 +17,23 @@ const mysqlConf = {
       port: 3306
   }
 };
+ function sqlConnect (sql, sqlArr, callBack) {
+     try{
+        var pool = mysql.createPool(mysqlConf.db2);
+        pool.getConnection(function (err, conn) {
+            console.log('123');
+            if (err) {
+                console.log('连接失败');
+                return;
+            }
+            conn.query(sql, sqlArr, callBack);
+            conn.release();
+        })
+     }catch(e){
+        console.log("错误",e)
+     }
+        
+ }
 
 //封装数据库sql操作
 async function DB1(sql){
@@ -66,4 +83,4 @@ async function DB2(sql){
 
 
 
-module.exports = {DB1,DB2};
+module.exports = { DB1, DB2, sqlConnect};
