@@ -9,8 +9,9 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var roomRouter = require("./routes/livingRoom");
 var carouselRouter = require("./routes/carousel");
-var channelRouter = require("./routes/channel")
-var uploadRouter = require("./routes/upload")
+var channelRouter = require("./routes/channel");
+var uploadRouter = require("./routes/upload");
+var analysisRouter = require("./routes/analysis");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var port = process.env.PORT || 8511;
@@ -60,8 +61,13 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/livingRoom", roomRouter);
 app.use("/carousel", carouselRouter);
-app.use("/channel",channelRouter)
-app.use("/upload",uploadRouter)
+app.use("/channel", channelRouter);
+try {
+  app.use("/upload", uploadRouter);
+} catch (e) {
+  console.log("错误", e);
+}
+app.use("/analysis", analysisRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -109,19 +115,19 @@ for (let i in namespaceList) {
 //监听新的命名空间
 function newNamespace(space) {
   io.of(space).on("connection", (socket) => {
-    console.log("服务器端连接成功")
+    console.log("服务器端连接成功");
     socket.on("chat message", (data) => {
-      console.log("chat中....")
+      console.log("chat中....");
       socket.emit("chat message", data);
     });
-    socket.on("connect",(data)=>{
-      socket.emit("服务器连接成功",data)
-    })
+    socket.on("connect", (data) => {
+      socket.emit("服务器连接成功", data);
+    });
     //加入房间
     socket.on("JOINROOM", (name) => {
       socket.join(name);
-      socket.emit("用户加入直播间,name")
-      console.log("加入房间",name)
+      socket.emit("用户加入直播间,name");
+      console.log("加入房间", name);
     });
     //离开房间
     socket.on("LEAVEROOM", (name) => {
@@ -132,7 +138,6 @@ function newNamespace(space) {
       // to方法给特定的用户发送特定的消息，跟加入直播间的name有关
       io.of(space).to(data.room).emit(data.func, data.data);
       // console.log("聊天记录",{ space,data })
-      
     });
     //加入自己的房间
     socket.on("JOINUSER", (id) => {
@@ -149,7 +154,7 @@ function newNamespace(space) {
   });
 }
 http.listen(port, function () {
-  console.log("端口",port)
+  console.log("端口", port);
   console.log("listening on *:" + port);
 });
 

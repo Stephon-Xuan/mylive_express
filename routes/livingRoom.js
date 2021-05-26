@@ -12,10 +12,13 @@ var sqlHandle = require("../public/config/mysqlModal");
 router.get("/roomList", async (req, res, next) => {
   let data = req.query;
   let sql;
+  // left join analysis on living_room.user_id = analysis.user_id
   if (!data.keyword) {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.description from living_room left join user on living_room.user_id = user.id  where living_room.status != 0`;
+    sql = `select living_room.*,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id  
+     where living_room.status != 0 ORDER BY living_room.id`;
   } else {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.description from living_room left join user on living_room.user_id = user.id where title like '%${data.keyword}%' or user.name like '%${data.keyword}%' and living_room.status !=0 limit 20`;
+    sql = `select living_room.*,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id 
+    where title like '%${data.keyword}%' or user.name like '%${data.keyword}%' and living_room.status !=0 limit 20`;
   }
   let result = await sqlHandle.DB2(sql);
   if (result.length >= 0) {
@@ -60,6 +63,7 @@ router.get("/roomTypeList", async (req, res, next) => {
   let data = req.query;
   let sql = `select type.type_id , type.type_name from type`;
   let result = await sqlHandle.DB2(sql);
+  console.log("直播间类型", result);
   if (result.length >= 0) {
     res.send(commonJS.outPut(200, result, "success"));
   } else {

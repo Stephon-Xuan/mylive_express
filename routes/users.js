@@ -43,6 +43,13 @@ router.post("/login", async (req, res, next) => {
         age: result[0].age,
         email: result[0].email,
       };
+      let aly_sql = `select analysis.user_id from analysis where user_id = '${result[0].id}'`;
+      let aly_res = await sqlHandle.DB2(aly_sql);
+      if (aly_res.length === 0) {
+        let aly_sql2 = `insert into analysis (user_id,integral_surplus) value ('${result[0].id}','100')`;
+        await sqlHandle.DB2(aly_sql2);
+      }
+
       res.send({
         ...commonJS.outPut(200, token, "success"),
         user_id: result[0].id,
@@ -91,6 +98,7 @@ router.post("/addUser", async (req, res, next) => {
   )}','${data.name}','${data.age}','${data.email}','${data.password}')`;
   let result = await sqlHandle.DB2(sql);
   if (result.affectedRows == 1) {
+    console.log("结果", result);
     res.send(commonJS.outPut(200, data, "success"));
   } else {
     res.send(commonJS.outPut(500, result, "fail"));

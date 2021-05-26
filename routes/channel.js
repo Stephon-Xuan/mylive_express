@@ -3,8 +3,6 @@ var router = express.Router();
 var commonJS = require("../public/js/common");
 var sqlHandle = require("../public/config/mysqlModal");
 
-
-
 //新建专栏
 router.post("/addChannel", async (req, res, next) => {
   let data = req.body;
@@ -16,7 +14,6 @@ router.post("/addChannel", async (req, res, next) => {
     res.send(commonJS.outPut(500, result, "fail"));
   }
 });
-
 
 //编辑专栏
 router.post("/editChannel", async (req, res, next) => {
@@ -30,7 +27,6 @@ router.post("/editChannel", async (req, res, next) => {
   }
 });
 
-
 // 获取专栏列表
 router.get("/channelList", async (req, res, next) => {
   let data = req.query;
@@ -43,14 +39,12 @@ router.get("/channelList", async (req, res, next) => {
   }
 });
 
-
 router.get("/deleteChannel", async (req, res, next) => {
   let data = req.query;
-  console.log("获取的专栏id",data.channel_id)
+  console.log("获取的专栏id", data.channel_id);
   //删除专栏下的直播间（TODO）
 
-  
-  //删除专栏   
+  //删除专栏
   let sql = `delete from channel WHERE channel_id = '${data.channel_id}'`;
   let result = await sqlHandle.DB2(sql);
   if (result.affectedRows == 1) {
@@ -61,5 +55,19 @@ router.get("/deleteChannel", async (req, res, next) => {
   }
 });
 
-
+// 获取专栏信息
+router.get("/channelDetail", async (req, res, next) => {
+  let data = req.query;
+  let sql = `select channel.channel_id,channel.channel_name, channel.user_id, user.name,user.avatar,user.email from channel left join user on channel.user_id = user.id  where channel_id = '${data.channel_type}' and user_id = '${data.user_id}'`;
+  let result = await sqlHandle.DB2(sql);
+  if (result.length == 1) {
+    // let resultData = {
+    //   ...result[0],
+    //   room_id: data.id,
+    // };
+    res.send(commonJS.outPut(200, { ...result[0] }, "success"));
+  } else {
+    res.send(commonJS.outPut(500, result, "fail"));
+  }
+});
 module.exports = router;
