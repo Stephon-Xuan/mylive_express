@@ -14,10 +14,12 @@ router.get("/roomList", async (req, res, next) => {
   let sql;
   // left join analysis on living_room.user_id = analysis.user_id
   if (!data.keyword) {
-    sql = `select living_room.*,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id  
-     where living_room.status != 0 ORDER BY living_room.id`;
+    sql = `select living_room.*,type.type_name,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id  
+      left join type on living_room.type = type.type_id
+      where living_room.status != 0 ORDER BY living_room.id`;
   } else {
-    sql = `select living_room.*,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id 
+    sql = `select living_room.*,type.type_name,user.avatar,user.name,user.email,user.sex from living_room left join user on living_room.user_id = user.id 
+      left join type on living_room.type = type.type_id
     where title like '%${data.keyword}%' or user.name like '%${data.keyword}%' and living_room.status !=0 limit 20`;
   }
   let result = await sqlHandle.DB2(sql);
@@ -38,17 +40,17 @@ router.get("/roomListByType", async (req, res, next) => {
   let data = req.query;
   let sql;
   if (data.type) {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where type = '${data.type}' and living_room.status !=0 limit 20`;
+    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id  where type = '${data.type}' and living_room.status !=0 limit 20`;
   } else if (data.channel_type && data.user_id) {
     //用户类型与用户
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where channel_type = '${data.channel_type}' and living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
+    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
   } else if (data.channel_type) {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where channel_type = '${data.channel_type}' and living_room.status !=0 limit 20`;
+    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.status !=0 limit 20`;
   } else if (data.user_id) {
     //单纯是用户
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id where living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
+    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
   } else {
-    sql = `select living_room.id,living_room.user_id,living_room.live_url,living_room.title,user.name,living_room.image,user.avatar,living_room.type,living_room.channel_type,living_room.description from living_room left join user on living_room.user_id = user.id  where living_room.status != 0`;
+    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.status != 0`;
   }
   let result = await sqlHandle.DB2(sql);
   if (result.length >= 0) {
@@ -79,11 +81,11 @@ router.get("/roomTypeList", async (req, res, next) => {
  */
 router.post("/addRoom", async (req, res, next) => {
   let data = req.body;
-  let sql = `insert into living_room (id,title,user_id,image,type,live_url,description,channel_type) value ('${commonJS.getCode(
+  let sql = `insert into living_room (id,title,user_id,image,type,live_url,description,channel_type,integral_fee) value ('${commonJS.getCode(
     32
   )}','${data.title}','${data.user_id}','${data.image}','${data.type}','${
     data.live_url
-  }','${data.description}','${data.channel_type}')`;
+  }','${data.description}','${data.channel_type}','${data.integral_fee}')`;
   let result = await sqlHandle.DB2(sql);
   if (result.affectedRows == 1) {
     res.send(commonJS.outPut(200, data, "success"));
@@ -100,7 +102,9 @@ router.post("/addRoom", async (req, res, next) => {
  */
 router.post("/editRoom", async (req, res, next) => {
   let data = req.body;
-  let sql = `update living_room set title='${data.title}',status='${data.status}',user_id='${data.user_id}' where id ='${data.id}' `;
+  let sql = `update living_room set title='${data.title}',image='${data.image}',
+  type='${data.type}',channel_type='${data.channel_type}',live_url='${data.live_url}',
+  description='${data.description}',integral_fee='${data.integral_fee}' where id ='${data.id}' `;
   let result = await sqlHandle.DB2(sql);
   if (result.affectedRows == 1) {
     res.send(commonJS.outPut(200, data, "success"));
