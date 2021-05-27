@@ -12,6 +12,8 @@ var carouselRouter = require("./routes/carousel");
 var channelRouter = require("./routes/channel");
 var uploadRouter = require("./routes/upload");
 var analysisRouter = require("./routes/analysis");
+var examineRouter = require("./routes/examine");
+var traineesRouter = require("./routes/trainees");
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var port = process.env.PORT || 8511;
@@ -68,6 +70,8 @@ try {
   console.log("错误", e);
 }
 app.use("/analysis", analysisRouter);
+app.use("/examine", examineRouter);
+app.use("/trainees", traineesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

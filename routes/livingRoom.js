@@ -121,7 +121,10 @@ router.post("/editRoom", async (req, res, next) => {
  */
 router.get("/roomDetail", async (req, res, next) => {
   let data = req.query;
-  let sql = `select living_room.title,living_room.type,living_room.live_url,user.name,user.id,user.avatar,living_room.description from living_room left join user on living_room.user_id = user.id  where living_room.id = '${data.id}' and living_room.status != 0`;
+  let sql = `select  examine.* , living_room.title,living_room.type,living_room.live_url,user.name,user.id,user.avatar,living_room.description 
+    from living_room left join user on living_room.user_id = user.id  
+    left join examine on living_room.id = examine.room_id 
+    where living_room.id = '${data.id}' and living_room.status != 0`;
   let result = await sqlHandle.DB2(sql);
   if (result.length == 1) {
     let resultData = {
