@@ -40,17 +40,17 @@ router.get("/roomListByType", async (req, res, next) => {
   let data = req.query;
   let sql;
   if (data.type) {
-    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id  where type = '${data.type}' and living_room.status !=0 limit 20`;
+    sql = `select *,living_room.id as room_id,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id  where type = '${data.type}' and living_room.status !=0 limit 20`;
   } else if (data.channel_type && data.user_id) {
     //用户类型与用户
-    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
+    sql = `select *,living_room.id as room_id,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
   } else if (data.channel_type) {
-    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.status !=0 limit 20`;
+    sql = `select *,living_room.id as room_id,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where channel_type = '${data.channel_type}' and living_room.status !=0 limit 20`;
   } else if (data.user_id) {
     //单纯是用户
-    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
+    sql = `select *,living_room.id as room_id,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.user_id = '${data.user_id}' and living_room.status !=0 limit 20`;
   } else {
-    sql = `select *,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.status != 0`;
+    sql = `select *,living_room.id as room_id,type.type_name from living_room left join user on living_room.user_id = user.id left join type on living_room.type = type.type_id where living_room.status != 0`;
   }
   let result = await sqlHandle.DB2(sql);
   if (result.length >= 0) {
